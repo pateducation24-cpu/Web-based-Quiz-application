@@ -150,6 +150,8 @@ The repository uses Django authentication, CSRF middleware, session state, and O
 ## Author
 
 Patrick Nyan Suah
+James Satiah 
+Paias Poiye
 
 ## License
 
