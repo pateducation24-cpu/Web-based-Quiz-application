@@ -1,0 +1,490 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - QuizApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 2rem;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            color: #e74c3c !important;
+            font-weight: bold !important;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #e74c3c !important;
+            color: white !important;
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .profile-avatar {
+            font-size: 4rem;
+        }
+
+        .profile-info h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .clear-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .result-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s;
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+        }
+
+        .result-quiz {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-score {
+            margin: 0.5rem 0;
+        }
+
+        .result-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-high {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-medium {
+            background: #f39c12;
+            color: white;
+        }
+
+        .badge-low {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 0;
+            width: 400px;
+            border-radius: 15px;
+            animation: slideDown 0.3s;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            padding: 1rem;
+            border-radius: 15px 15px 0 0;
+            color: white;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-confirm {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">📚 QuizApp</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="#" onclick="goToAdmin(event)">Admin</a>
+            <a href="{% url 'statistics' %}">Statistics</a>
+            <a href="{% url 'profile' %}">👤 {{ user.username }}</a>
+            <a href="#" class="logout-btn" onclick="showLogoutModal(event); return false;">🚪 Logout</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- add success message ater clearing histor -->
+        {% if messages %}
+    {% for message in messages %}
+        <div class="profile-card" style="background: {% if message.tags == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if message.tags == 'success' %}#155724{% else %}#721c24{% endif %};">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+        <!-- Profile Header -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-info">
+                    <h1>{{ user.username }}</h1>
+                    <p>Member since {{ user.date_joined|date:"F j, Y" }}</p>
+                    <p>Last login: {{ user.last_login|date:"F j, Y g:i A" }}</p>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_quizzes_taken }}</div>
+                    <div>Quizzes Taken</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ average_score|floatformat:1 }}%</div>
+                    <div>Average Score</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz History Section -->
+        <div class="history-section">
+            <div class="history-header">
+                <h2>📜 Quiz History</h2>
+                {% if results %}
+                <button class="clear-btn" onclick="showClearHistoryModal()">🗑️ Clear All History</button>
+                {% endif %}
+            </div>
+            
+            {% if results %}
+                {% for result in results %}
+                <div class="result-item">
+                    <div class="result-quiz">{{ result.quiz.name }}</div>
+                    <div class="result-score">
+                        Score: {{ result.score }}/{{ result.total_possible }} 
+                        ({{ result.percentage|floatformat:1 }}%)
+                        {% if result.percentage >= 80 %}
+                            <span class="badge badge-high">Excellent!</span>
+                        {% elif result.percentage >= 60 %}
+                            <span class="badge badge-medium">Good</span>
+                        {% else %}
+                            <span class="badge badge-low">Needs Practice</span>
+                        {% endif %}
+                    </div>
+                    <div class="result-date">Completed: {{ result.completed_at|date:"F j, Y g:i A" }}</div>
+                    <a href="{% url 'quiz_result' result.id %}" style="display: inline-block; margin-top: 0.5rem; color: #667eea;">View Details →</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-history">
+                    <p>😊 No quiz history yet!</p>
+                    <p>Take your first quiz to see your results here.</p>
+                    <a href="{% url 'home' %}" class="btn" style="margin-top: 1rem;">Browse Quizzes</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{% url 'home' %}" class="btn">← Back to Home</a>
+        </div>
+    </div>
+    
+    <!-- Clear History Confirmation Modal -->
+    <div id="clearHistoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Clear Quiz History</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem;">Are you sure you want to clear your quiz history?</p>
+                <p style="color: #666; margin-top: 10px;">This action cannot be undone. All your quiz results will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeClearModal()">Cancel</button>
+                <form id="clearHistoryForm" method="post" action="{% url 'clear_history' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirm">Yes, Clear History</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Confirm Logout</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem;">Are you sure you want to logout?</p>
+                <p style="color: #666; margin-top: 10px;">You will need to login again to access your profile and quiz history.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+                <form id="logoutForm" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirm">Yes, Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function goToAdmin(event) {
+            event.preventDefault();
+            window.location.href = '/admin';
+        }
+        
+        // Clear History Modal Functions
+        var clearModal = document.getElementById('clearHistoryModal');
+        
+        function showClearHistoryModal() {
+            clearModal.style.display = 'block';
+        }
+        
+        function closeClearModal() {
+            clearModal.style.display = 'none';
+        }
+        
+        function confirmClearHistory() {
+            document.getElementById('clearHistoryForm').submit();
+        }
+        
+        // Logout Modal Functions
+        var logoutModal = document.getElementById('logoutModal');
+        
+        function showLogoutModal(event) {
+            if (event) event.preventDefault();
+            logoutModal.style.display = 'block';
+        }
+        
+        function closeLogoutModal() {
+            logoutModal.style.display = 'none';
+        }
+        
+        function confirmLogout() {
+            document.getElementById('logoutForm').submit();
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == clearModal) {
+                clearModal.style.display = 'none';
+            }
+            if (event.target == logoutModal) {
+                logoutModal.style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (clearModal.style.display === 'block') {
+                    clearModal.style.display = 'none';
+                }
+                if (logoutModal.style.display === 'block') {
+                    logoutModal.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

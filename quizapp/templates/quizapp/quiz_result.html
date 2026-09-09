@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - {{ result.quiz.name }}</title>
+    <link rel="stylesheet" href="{% static 'quizapp/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">📚 QuizApp</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/admin">Admin</a>
+            <a href="/statistics/">Statistics</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card" style="text-align: center;">
+            <h1>📊 Quiz Complete!</h1>
+            
+            <div style="margin: 2rem 0;">
+                <div class="stat-number">{{ result.score }}/{{ result.total_possible }}</div>
+                <div style="font-size: 3rem; font-weight: bold; color: var(--primary); margin: 1rem 0;">
+                    {{ grade }}
+                </div>
+                <div>Percentage: {{ result.percentage|floatformat:1 }}%</div>
+            </div>
+            
+            {% if result.percentage >= 90 %}
+            <div class="btn-success" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 10px;">
+                🎉 Excellent! You're a quiz master! 🎉
+            </div>
+            {% elif result.percentage >= 70 %}
+            <div class="btn-primary" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 10px;">
+                👍 Good job! Keep practicing!
+            </div>
+            {% else %}
+            <div class="btn-danger" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 10px;">
+                💪 Don't give up! Try again!
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2>Performance by Category</h2>
+            {% for category, stats in categories.items %}
+            <div style="margin: 1rem 0;">
+                <strong>{{ category }}</strong><br>
+                Correct: {{ stats.correct }}/{{ stats.total }} ({{ stats.points }} points)
+                <div class="progress-bar" style="margin-top: 0.5rem;">
+                    <div class="progress-fill" style="width: {% widthratio stats.correct stats.total 100 %}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'mistake_review' result.id %}" class="btn btn-primary">Review Mistakes</a>
+            <a href="{% url 'home' %}" class="btn btn-success">Take Another Quiz</a>
+            <a href="{% url 'statistics' %}" class="btn">View Statistics</a>
+        </div>
+    </div>
+    
+    <script src="{% static 'quizapp/js/quiz.js' %}"></script>
+    {% if result.percentage == 100 %}
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <script>
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    </script>
+    {% endif %}
+</body>
+</html>

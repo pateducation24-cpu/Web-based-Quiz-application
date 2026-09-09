@@ -1,0 +1,123 @@
+Python 3.13.0 (tags/v3.13.0:60403a5, Oct  7 2024, 09:38:07) [MSC v.1941 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Taking Quiz - {{ quiz_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .option {
+            display: block;
+            padding: 10px;
+            margin: 10px 0;
+            background: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{{ quiz_name }}</h2>
+        <p>Question {{ question_num }} of {{ total_questions }}</p>
+        <div class="progress-bar" style="width: 100%; background: #e0e0e0; height: 20px; border-radius: 10px;">
+            <div style="width: {{ progress }}%; background: #667eea; height: 20px; border-radius: 10px;"></div>
+        </div>
+        <p>Score: <span id="score">{{ score }}</span></p>
+        
+        <h3>{{ question.text }}</h3>
+        
+        <div id="options">
+            {% for option in question.options %}
+            <label class="option">
+                <input type="radio" name="answer" value="{{ option }}">
+                {{ option }}
+            </label>
+            {% endfor %}
+        </div>
+        
+        <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+    </div>
+    
+    <script>
+        let selectedAnswer = null;
+        
+        document.querySelectorAll('.option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                document.querySelectorAll('.option').forEach(o => o.style.background = '#f0f0f0');
+                this.style.background = '#e0e7ff';
+                const radio = this.querySelector('input');
+                radio.checked = true;
+                selectedAnswer = radio.value;
+            });
+        });
+        
+        function submitAnswer() {
+            if (!selectedAnswer) {
+                alert('Please select an answer!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('quiz_id', '{{ quiz_id }}');
+            formData.append('question_index', '{{ question_num|add:"-1" }}');
+            formData.append('answer', selectedAnswer);
+            
+...             fetch('/quiz/submit-answer/', {
+...                 method: 'POST',
+...                 body: formData,
+...                 headers: {
+...                     'X-CSRFToken': getCookie('csrftoken')
+...                 }
+...             })
+...             .then(response => response.json())
+...             .then(data => {
+...                 if (data.success) {
+...                     alert(data.is_correct ? 'Correct! +' + data.points_earned : 'Wrong! Correct answer: ' + data.correct_answer);
+...                     document.getElementById('score').textContent = data.score;
+...                     
+...                     if (data.next_index < data.total) {
+...                         window.location.href = `/quiz/{{ quiz_id }}/question/${data.next_index}/`;
+...                     } else {
+...                         window.location.href = `/quiz/{{ quiz_id }}/complete/`;
+...                     }
+...                 }
+...             });
+...         }
+...         
+...         function getCookie(name) {
+...             let cookieValue = null;
+...             if (document.cookie && document.cookie !== '') {
+...                 const cookies = document.cookie.split(';');
+...                 for (let i = 0; i < cookies.length; i++) {
+...                     const cookie = cookies[i].trim();
+...                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
+...                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+...                         break;
+...                     }
+...                 }
+...             }
+...             return cookieValue;
+...         }
+...     </script>
+... </body>

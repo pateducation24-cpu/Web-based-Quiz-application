@@ -1,0 +1,463 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizApp - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        /* Red logout button style */
+        .logout-btn {
+            color: #e74c3c !important;
+            font-weight: bold !important;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #e74c3c !important;
+            color: white !important;
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .card h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .quiz-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-description {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-meta {
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Guest message styling */
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .motivation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 0;
+            width: 400px;
+            border-radius: 15px;
+            animation: slideDown 0.3s;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            padding: 1rem;
+            border-radius: 15px 15px 0 0;
+            color: white;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-confirm {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">📚 QuizApp</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="#" onclick="goToAdmin(event)">Admin</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'statistics' %}">Statistics</a>
+                <a href="{% url 'profile' %}">👤 {{ user.username }}</a>
+                <a href="#" class="logout-btn" onclick="showLogoutModal(event); return false;">🚪 Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">🔐 Login</a>
+                <a href="{% url 'register' %}">📝 Register</a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% if user.is_authenticated %}
+            <!-- Content for Logged-in Users -->
+            <div class="card">
+                <h1>Welcome back, {{ user.username }}! 🎯</h1>
+                <p>Ready to test your knowledge?</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_quizzes }}</div>
+                    <div>Quizzes Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_questions }}</div>
+                    <div>Total Questions</div>
+                </div>
+            </div>
+            
+            <h2>Available Quizzes</h2>
+            <div class="quiz-grid">
+                {% for quiz in quizzes %}
+                <div class="quiz-card">
+                    <div class="quiz-title">{{ quiz.name }}</div>
+                    <div class="quiz-description">{{ quiz.description|default:"Test your knowledge!" }}</div>
+                    <div class="quiz-meta">📖 {{ quiz.total_questions }} questions</div>
+                    <a href="{% url 'take_quiz' quiz.id %}" class="btn">Start Quiz →</a>
+                </div>
+                {% empty %}
+                <div class="quiz-card">
+                    <div class="quiz-title">No Quizzes Yet</div>
+                    <div class="quiz-description">Check back later for new quizzes!</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Content for Guest Users (Not Logged In) -->
+            <div class="welcome-message">
+                <h1>🌟 Welcome to QuizApp! 🌟</h1>
+                <p style="font-size: 1.2rem; margin-top: 1rem;">Your Ultimate Knowledge Testing Platform</p>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Platform Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_quizzes }}</div>
+                        <div>Quizzes Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_questions }}</div>
+                        <div>Total Questions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="motivation-card">
+                <h3>💡 Did You Know?</h3>
+                <p>Regular quizzing can improve memory retention and cognitive function by up to 40%!</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Multiple Topics</h3>
+                    <p>Test your knowledge across various subjects and categories</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Difficulty Levels</h3>
+                    <p>From Easy to Expert - challenge yourself at your own pace</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your improvement with detailed statistics</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Compete & Learn</h3>
+                    <p>Review mistakes and learn from them to improve</p>
+                </div>
+            </div>
+            
+            <div class="card" style="text-align: center; margin-top: 2rem;">
+                <h3>🚀 Ready to Challenge Yourself?</h3>
+                <p style="margin: 1rem 0;">Login or Register to start your quiz journey!</p>
+                <a href="{% url 'login' %}" class="btn btn-large">Login Now</a>
+                <a href="{% url 'register' %}" class="btn btn-large" style="background: #27ae60; margin-left: 1rem;">Create Account</a>
+            </div>
+            
+            <div class="motivation-card">
+                <h3>🎯 Quote of the Day</h3>
+                <p>"The expert in anything was once a beginner." - Helen Hayes</p>
+                <p style="margin-top: 0.5rem;">Start your learning journey today!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Custom Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Confirm Logout</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem;">Are you sure you want to logout?</p>
+                <p style="color: #666; margin-top: 10px;">You will need to login again to access your profile and quiz history.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <form id="logoutForm" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirm">Yes, Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    // Function for Admin link
+    function goToAdmin(event) {
+        event.preventDefault();
+        window.location.href = '/admin';
+    }
+    
+    // Modal functions
+    var modal = document.getElementById('logoutModal');
+    
+    function showLogoutModal(event) {
+        event.preventDefault();
+        modal.style.display = 'block';
+    }
+    
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+    
+    function confirmLogout() {
+        document.getElementById('logoutForm').submit();
+    }
+    
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.style.display === 'block') {
+            modal.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>

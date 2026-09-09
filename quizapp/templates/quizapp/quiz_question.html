@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taking Quiz - {{ quiz_name }}</title>
+    <link rel="stylesheet" href="{% static 'quizapp/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">📚 QuizApp</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/admin">Admin</a>
+            <a href="/statistics/">Statistics</a>
+        </div>
+    </nav>
+    
+    <div class="score-badge">
+        Score: <span id="current-score">{{ score }}</span>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="quiz-title">{{ quiz_name }}</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ progress }}%">
+                    {{ progress }}%
+                </div>
+            </div>
+            
+            <div class="question-meta">
+                Question {{ question_num }} of {{ total_questions }}
+                | Category: {{ question.category }}
+                | Difficulty: {{ question.difficulty }}
+                | Points: {{ question.points }}
+            </div>
+            
+            <div class="question-text">{{ question.text }}</div>
+            
+            <div class="options" id="options">
+                {% for option in question.options %}
+                <label class="option">
+                    <input type="radio" name="answer" value="{{ option }}">
+                    {{ option }}
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button class="btn btn-primary" onclick="submitAnswer()">Submit Answer</button>
+        </div>
+    </div>
+    
+    <script>
+        let selectedAnswer = null;
+        
+        // Add click handlers to options
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                const radio = this.querySelector('input');
+                radio.checked = true;
+                selectedAnswer = radio.value;
+            });
+        });
+        
+        function submitAnswer() {
+            if (!selectedAnswer) {
+                alert('Please select an answer!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('quiz_id', '{{ quiz_id }}');
+            formData.append('question_index', '{{ question_num|add:"-1" }}');
+            formData.append('answer', selectedAnswer);
+            
+            fetch('{% url "submit_answer" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show feedback
+                    const feedback = document.createElement('div');
+                    feedback.className = `feedback ${data.is_correct ? 'correct' : 'wrong'}`;
+                    feedback.innerHTML = data.is_correct ? 
+                        `✅ Correct! +${data.points_earned} points` : 
+                        `❌ Wrong! Correct answer: ${data.correct_answer}`;
+                    document.body.appendChild(feedback);
+                    
+                    // Update score
+                    document.getElementById('current-score').textContent = data.score;
+                    
+                    // Add pulse animation to score
+                    const scoreBadge = document.querySelector('.score-badge');
+                    scoreBadge.classList.add('pulse');
+                    setTimeout(() => scoreBadge.classList.remove('pulse'), 500);
+                    
+                    // Move to next question
+                    if (data.next_index < data.total) {
+                        setTimeout(() => {
+                            window.location.href = `/quiz/{{ quiz_id }}/question/${data.next_index}/`;
+                        }, 1500);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = `/quiz/{{ quiz_id }}/complete/`;
+                        }, 1500);
+                    }
+                    
+                    // Remove feedback after 1.5 seconds
+                    setTimeout(() => feedback.remove(), 1500);
+                }
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    
+    <style>
+        .feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        .feedback.correct {
+            background: #27ae60;
+        }
+        .feedback.wrong {
+            background: #e74c3c;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</body>
+</html>

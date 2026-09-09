@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mistake Review - {{ result.quiz.name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .mistake-card {
+            background: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .your-answer {
+            color: #e74c3c;
+            margin: 5px 0;
+        }
+        .correct-answer {
+            color: #27ae60;
+            margin: 5px 0;
+        }
+        .category {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: opacity 0.3s;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .stats {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>📝 Mistake Review</h1>
+            
+            <div class="stats">
+                <strong>{{ mistakes|length }}</strong> mistakes out of <strong>{{ result.answers.count }}</strong> questions
+            </div>
+            
+            {% if mistakes %}
+                {% for mistake in mistakes %}
+                <div class="mistake-card">
+                    <div class="question">{{ forloop.counter }}. {{ mistake.question.text }}</div>
+                    <div class="your-answer">❌ Your answer: {{ mistake.user_answer }}</div>
+                    <div class="correct-answer">✅ Correct answer: {{ mistake.correct_answer }}</div>
+                    <div class="category">
+                        Category: {{ mistake.question.category }} | 
+                        Difficulty: {{ mistake.question.difficulty }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 40px;">
+                    🎉 Perfect score! No mistakes to review!
+                </div>
+            {% endif %}
+            
+            <div style="text-align: center;">
+                <a href="{% url 'quiz_result' result.id %}" class="btn">← Back to Results</a>
+                <a href="{% url 'home' %}" class="btn">Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
